@@ -1,0 +1,19 @@
+{
+  "name": "ispy-product-story",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "test": "node tests/geometry.test.js && node tests/model.test.js && node tests/timeline.test.js",
+    "check": "npm test && npm run build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.3"
+  }
+}
