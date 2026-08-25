@@ -1,135 +1,187 @@
 import * as THREE from "three";
-import { AppleWatchUltra } from "./watch.js";
-import { sampleTimeline } from "./timeline.js";
+import { AdaptiveQuality } from "./core/quality.js";
+import { ProductWatch } from "./product/watch-model.js";
+import { SignalField } from "./scene/signal-field.js";
+import { StudioRig } from "./scene/studio-rig.js";
+import { StoryTimeline } from "./story/timeline.js";
 
 export class Experience {
   constructor(canvas) {
     this.canvas = canvas;
-    this.progress = 0;
-    this.raf = 0;
-    this.lastEnv = "";
+    this.quality = new AdaptiveQuality();
+    this.timeline = new StoryTimeline();
+    this.sections = Array.from(document.querySelectorAll(".chapter"));
+    this.chapterButtons = Array.from(document.querySelectorAll(".chapters button"));
+    this.progressBar = document.getElementById("progress-bar");
+    this.stops = [];
+    this.targetProgress = 0;
+    this.visibleProgress = -1;
     this.lastChapter = -1;
-    this.isMobile = false;
-    this.camTarget = new THREE.Vector3();
-    this.bar = document.getElementById("progress-bar");
-    this.chapterBtns = [];
+    this.frame = 0;
+    this.lastTime = performance.now();
+    this.lastWidth = 0;
+    this.lastHeight = 0;
+    this.firstFrame = true;
+    this.isDestroyed = false;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: false,
+      antialias: this.quality.antialias,
       alpha: false,
-      stencil: false,
       depth: true,
-      powerPreference: "low-power",
-      precision: "mediump",
+      stencil: false,
+      powerPreference: "high-performance",
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.toneMapping = THREE.NoToneMapping;
-    this.renderer.shadowMap.enabled = false;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.02;
+    this.renderer.shadowMap.enabled = this.quality.shadows;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.setClearColor(0x000000, 1);
-    this.renderer.setPixelRatio(1);
 
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x000000);
+    this.camera = new THREE.PerspectiveCamera(31, 1, 0.35, 220);
+    this.camera.position.set(7, 3, 64);
 
-    this.camera = new THREE.PerspectiveCamera(34, 1, 1, 400);
-    this.camera.position.set(0, 4, 80);
-
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x22222a, 1.05);
-    this.key = new THREE.DirectionalLight(0xfff2e0, 1.35);
-    this.key.position.set(30, 40, 40);
-    this.scene.add(hemi, this.key);
-
-    this.watch = new AppleWatchUltra();
+    this.studio = new StudioRig(this.renderer, this.scene, this.quality.shadows);
+    this.watch = new ProductWatch(this.renderer, this.quality.mobile);
     this.scene.add(this.watch.group);
+    this.signalField = new SignalField(this.scene);
 
     this.onScroll = this.onScroll.bind(this);
     this.onResize = this.onResize.bind(this);
-    this.draw = this.draw.bind(this);
-
+    this.render = this.render.bind(this);
+    this.onVisibility = this.onVisibility.bind(this);
     window.addEventListener("scroll", this.onScroll, { passive: true });
     window.addEventListener("resize", this.onResize, { passive: true });
+    document.addEventListener("visibilitychange", this.onVisibility);
+    this.faceTimer = window.setInterval(() => this.requestRender(), 1000);
 
-    this.chapterBtns = Array.from(document.querySelectorAll(".chapters button"));
     this.onResize();
     this.onScroll();
-    this.draw();
+    this.requestRender();
+  }
+
+  onVisibility() {
+    if (!document.hidden) {
+      this.lastTime = performance.now();
+      this.requestRender();
+    }
   }
 
   onScroll() {
-    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    this.progress = window.scrollY / max;
-    if (!this.raf) this.raf = requestAnimationFrame(this.draw);
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    this.targetProgress = THREE.MathUtils.clamp(window.scrollY / maxScroll, 0, 1);
+    this.requestRender();
   }
 
   onResize() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    this.isMobile = w < 860;
-    this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    const width = Math.max(1, window.innerWidth);
+    const height = Math.max(1, window.innerHeight);
+    this.lastWidth = width;
+    this.lastHeight = height;
+    this.quality.mobile = window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
 
-    const cap = this.isMobile ? 960 : 1280;
-    const longEdge = Math.max(w, h);
-    const res = longEdge > cap ? cap / longEdge : 1;
-    this.renderer.setPixelRatio(1);
-    this.renderer.setSize(Math.round(w * res), Math.round(h * res), false);
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
-    if (!this.raf) this.raf = requestAnimationFrame(this.draw);
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setPixelRatio(this.quality.pixelRatio(width, height));
+    this.renderer.setSize(width, height, false);
+    this.computeStops();
+    this.onScroll();
   }
 
-  applyEnv(name) {
-    if (name === this.lastEnv) return;
-    this.lastEnv = name;
-    if (name === "underwater") {
-      this.renderer.setClearColor(0x02141c, 1);
-      this.scene.background.set(0x02141c);
-      this.key.color.set(0x7fd0ff);
-      this.key.intensity = 1.05;
-    } else if (name === "night") {
-      this.renderer.setClearColor(0x010208, 1);
-      this.scene.background.set(0x010208);
-      this.key.color.set(0xc9d7ff);
-      this.key.intensity = 0.85;
-    } else if (name === "bright") {
-      this.renderer.setClearColor(0x050505, 1);
-      this.scene.background.set(0x050505);
-      this.key.color.set(0xfff6ea);
-      this.key.intensity = 1.7;
-    } else {
-      this.renderer.setClearColor(0x000000, 1);
-      this.scene.background.set(0x000000);
-      this.key.color.set(0xfff2e0);
-      this.key.intensity = 1.35;
+  computeStops() {
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    this.stops = this.sections.map((section) => {
+      const center = section.offsetTop + section.offsetHeight * 0.5 - window.innerHeight * 0.5;
+      return THREE.MathUtils.clamp(center / maxScroll, 0, 1);
+    });
+  }
+
+  requestRender() {
+    if (!this.frame && !this.isDestroyed && !document.hidden) {
+      this.frame = requestAnimationFrame(this.render);
     }
   }
 
-  draw() {
-    this.raf = 0;
-    const state = sampleTimeline(this.progress);
-    this.applyEnv(state.env);
-
-    const xOff = this.isMobile ? 0 : state.pos.x;
-    this.camera.position.set(state.cam.x - (this.isMobile ? state.cam.x * 0.35 : 0), state.cam.y, state.cam.z);
-    this.camTarget.set(this.isMobile ? 0 : state.target.x, state.target.y, state.target.z);
-    this.camera.lookAt(this.camTarget);
-
-    this.watch.group.rotation.set(state.rot.x, state.rot.y, state.rot.z);
-    this.watch.group.position.set(xOff, state.pos.y, state.pos.z);
-    this.watch.setExplode(state.explode);
+  applyState(state) {
+    const mobile = this.quality.mobile;
+    let nextFov = state.fov;
+    if (mobile) {
+      this.camera.position.set(state.camera.x * 0.18, state.camera.y + 4.8, state.camera.z + 7);
+      nextFov = Math.max(36, state.fov + 6);
+      this.watch.group.position.set(state.product.x * 0.12, state.product.y + 4.7, state.product.z);
+      this.camera.lookAt(state.target.x * 0.1, state.target.y + 4.1, state.target.z);
+    } else {
+      this.camera.position.copy(state.camera);
+      this.watch.group.position.copy(state.product);
+      this.camera.lookAt(state.target);
+    }
+    if (Math.abs(this.camera.fov - nextFov) > 0.001) {
+      this.camera.fov = nextFov;
+      this.camera.updateProjectionMatrix();
+    }
+    this.watch.group.quaternion.copy(state.quaternion);
     this.watch.setFinish(state.finish);
     this.watch.setBand(state.band);
-    this.watch.setFaceMode(state.face);
+    this.watch.setOptics(state.optics);
+    this.watch.setAssembly(state.assembly);
+    this.watch.setFace(state.face, state.faceProgress);
+    this.studio.update(state);
+    this.signalField.update(state, this.watch.group.position);
 
-    if (this.bar) this.bar.style.width = `${this.progress * 100}%`;
+    if (this.progressBar) this.progressBar.style.transform = `scaleX(${this.visibleProgress})`;
     if (state.chapter !== this.lastChapter) {
       this.lastChapter = state.chapter;
-      for (let i = 0; i < this.chapterBtns.length; i++) {
-        this.chapterBtns[i].classList.toggle("is-active", i === state.chapter);
-      }
+      this.chapterButtons.forEach((button, index) => {
+        const active = index === state.chapter;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-current", active ? "step" : "false");
+      });
+    }
+  }
+
+  render(now) {
+    this.frame = 0;
+    if (this.isDestroyed || document.hidden) return;
+    const delta = Math.min(50, Math.max(0.1, now - this.lastTime));
+    this.lastTime = now;
+
+    if (this.visibleProgress < 0 || this.quality.reducedMotion) {
+      this.visibleProgress = this.targetProgress;
+    } else {
+      const smoothing = 1 - Math.exp(-delta * 0.0115);
+      this.visibleProgress = THREE.MathUtils.lerp(this.visibleProgress, this.targetProgress, smoothing);
+    }
+    if (Math.abs(this.targetProgress - this.visibleProgress) < 0.00002) {
+      this.visibleProgress = this.targetProgress;
     }
 
+    const moving = this.visibleProgress !== this.targetProgress;
+    const state = this.timeline.sample(this.visibleProgress, this.stops);
+    this.applyState(state);
     this.renderer.render(this.scene, this.camera);
+
+    if (!this.firstFrame && moving && this.quality.sample(delta)) {
+      this.renderer.setPixelRatio(this.quality.pixelRatio(this.lastWidth, this.lastHeight));
+      this.renderer.setSize(this.lastWidth, this.lastHeight, false);
+    }
+    this.firstFrame = false;
+
+    if (moving) this.requestRender();
+  }
+
+  destroy() {
+    this.isDestroyed = true;
+    cancelAnimationFrame(this.frame);
+    clearInterval(this.faceTimer);
+    window.removeEventListener("scroll", this.onScroll);
+    window.removeEventListener("resize", this.onResize);
+    document.removeEventListener("visibilitychange", this.onVisibility);
+    this.watch.dispose();
+    this.signalField.dispose();
+    this.studio.dispose();
+    this.renderer.dispose();
   }
 }

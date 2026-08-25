@@ -1,24 +1,32 @@
-# iSPY 2 Pro Max 1.25GP
+# iSPY 2 Pro Max — 3D Product Story
 
-Scroll presentation: a luxury titanium watch on the surface. Specs unfold as you go.
-
-## Story
-
-1. **Face** — 49mm titanium instrument. Looks ordinary.
-2. **Titanium** — high-class plate, Ultra-class silhouette.
-3. **Display** — sapphire canvas, time and complications.
-4. **Controls** — crown and action hardware.
-5. **Optics** — concealed 512MP–1.3GP imaging (1.25GP rated).
-6. **Armor** — 3t direct / 2.4t unexpected.
-7. **Cell** — 3-month isotope cycle, 40 cycles, 10 years.
-8. **Core** — picometer die, 256TB, 1TB HBM, 0.75TB DDR5-6000.
-9. **Link** — 750m radio, 245km non-satellite fix, 25TB/s mesh.
-10. **Close** — still just a watch.
-
-3D model is unchanged. New ideas drop in as extra chapters.
+A scroll-directed, physically based product film rendered in real time with Three.js. The watch is a modular procedural assembly: titanium chassis, sapphire/OLED stack, controls, ceramic sensor back, three bands, optics, battery, board, shielding, memory, haptics, contacts, and flex paths.
 
 ## Run
 
 ```bash
-python3 -m http.server 8080 --bind 0.0.0.0
+npm install
+npm run dev
 ```
+
+The development server binds to `0.0.0.0`. Create an optimized production bundle with `npm run build`.
+
+## Validation
+
+```bash
+npm run check
+```
+
+This checks geometry integrity and triangle budgets, samples every story track for valid bounded transforms, and creates the production bundle.
+
+## Architecture
+
+- `js/product/` — reusable geometry, generated textures, PBR materials, OLED drawing, and the complete mechanical assembly
+- `js/scene/` — HDR-derived studio reflections, lights, cyclorama, and shadow floor
+- `js/story/` — declarative shots and allocation-free timeline sampling
+- `js/core/` — adaptive render quality
+- `js/experience.js` — renderer lifecycle, scroll smoothing, responsive composition, and render-on-demand scheduling
+
+## Performance strategy
+
+The page has no external model or texture downloads. Geometry and small deterministic texture maps are generated once, repeated parts use shared geometry or instancing, the render loop sleeps when the scene is still, dense displays are capped, and sustained slow frames reduce resolution without changing scene content. Desktop uses soft shadows and higher pixel density; coarse-pointer/mobile devices use a lower-cost profile.
