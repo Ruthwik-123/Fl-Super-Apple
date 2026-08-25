@@ -1,5 +1,4 @@
 import { Experience } from "./experience.js";
-import { keyframes } from "./timeline.js";
 
 const canvas = document.getElementById("stage");
 const loader = document.getElementById("loader");
@@ -24,20 +23,14 @@ names.forEach((name, i) => {
   b.title = name;
   b.addEventListener("click", () => {
     const sections = document.querySelectorAll(".chapter");
-    sections[i]?.scrollIntoView({ behavior: "smooth" });
+    sections[i]?.scrollIntoView({ behavior: "auto" });
   });
   chaptersEl.appendChild(b);
 });
 
-const boot = () => {
-  const exp = new Experience(canvas);
-  window.__ultra = exp;
-  requestAnimationFrame(() => {
-    loader.classList.add("is-gone");
-  });
-};
-
-boot();
+const exp = new Experience(canvas);
+window.__ultra = exp;
+loader.classList.add("is-gone");
 
 document.querySelectorAll(".nav a[href^='#']").forEach((a) => {
   a.addEventListener("click", (e) => {
@@ -45,8 +38,6 @@ document.querySelectorAll(".nav a[href^='#']").forEach((a) => {
     const el = document.querySelector(id);
     if (!el) return;
     e.preventDefault();
-    el.scrollIntoView({ behavior: "smooth" });
+    el.scrollIntoView({ behavior: "auto" });
   });
 });
-
-void keyframes;
