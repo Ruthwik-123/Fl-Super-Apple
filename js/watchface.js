@@ -17,36 +17,36 @@ export function createWatchFace() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    if (next === "dive") {
-      ctx.fillStyle = "#02151f";
+    if (next === "optics") {
+      ctx.fillStyle = "#0a1210";
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#7fe9ff";
-      ctx.font = "600 14px sans-serif";
-      ctx.fillText("DIVE", cx, 48);
+      ctx.fillStyle = "#c6ff4a";
+      ctx.font = "600 11px sans-serif";
+      ctx.fillText("OPTICS", cx, 48);
       ctx.fillStyle = "#fff";
-      ctx.font = "700 52px sans-serif";
-      ctx.fillText("18.4", cx, cy);
-      ctx.fillStyle = "#7fe9ff";
+      ctx.font = "700 40px sans-serif";
+      ctx.fillText("1.25", cx, cy - 6);
+      ctx.fillStyle = "#c6ff4a";
       ctx.font = "500 12px sans-serif";
-      ctx.fillText("METERS", cx, cy + 36);
-    } else if (next === "run") {
-      ctx.fillStyle = "#140b08";
+      ctx.fillText("GIGAPIXELS", cx, cy + 32);
+    } else if (next === "cell") {
+      ctx.fillStyle = "#0c120e";
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#ff5a1f";
-      ctx.font = "600 12px sans-serif";
-      ctx.fillText("OUTDOOR RUN", cx, 48);
+      ctx.fillStyle = "#c6ff4a";
+      ctx.font = "600 11px sans-serif";
+      ctx.fillText("CELL", cx, 48);
       ctx.fillStyle = "#fff";
-      ctx.font = "700 44px sans-serif";
-      ctx.fillText("3.21", cx, cy);
+      ctx.font = "700 48px sans-serif";
+      ctx.fillText("90d", cx, cy);
       ctx.font = "500 11px sans-serif";
       ctx.fillStyle = "rgba(255,255,255,0.6)";
-      ctx.fillText("KM", cx, cy + 32);
-    } else if (next === "satellite") {
+      ctx.fillText("PER CYCLE", cx, cy + 36);
+    } else if (next === "link") {
       ctx.fillStyle = "#07070c";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#9ad0ff";
-      ctx.font = "600 12px sans-serif";
-      ctx.fillText("SATELLITE", cx, 48);
+      ctx.font = "600 11px sans-serif";
+      ctx.fillText("LINK", cx, 48);
       ctx.strokeStyle = "#9ad0ff";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -57,25 +57,31 @@ export function createWatchFace() {
       ctx.arc(cx, cy, 6, 0, Math.PI * 2);
       ctx.fill();
       ctx.font = "600 13px sans-serif";
-      ctx.fillText("Connecting", cx, h - 56);
-    } else if (next === "sleep") {
-      ctx.fillStyle = "#120818";
-      ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#c9b6ff";
-      ctx.font = "600 12px sans-serif";
-      ctx.fillText("SLEEP SCORE", cx, 52);
-      ctx.fillStyle = "#fff";
-      ctx.font = "700 64px sans-serif";
-      ctx.fillText("86", cx, cy);
-    } else if (next === "battery") {
+      ctx.fillText("245 km", cx, h - 56);
+    } else if (next === "core") {
       ctx.fillStyle = "#0b0f0c";
       ctx.fillRect(0, 0, w, h);
       ctx.fillStyle = "#c6ff4a";
-      ctx.font = "600 12px sans-serif";
-      ctx.fillText("BATTERY", cx, 52);
+      ctx.font = "600 11px sans-serif";
+      ctx.fillText("CORE", cx, 52);
       ctx.fillStyle = "#fff";
-      ctx.font = "700 52px sans-serif";
-      ctx.fillText("42h", cx, cy);
+      ctx.font = "700 36px sans-serif";
+      ctx.fillText("256TB", cx, cy);
+      ctx.font = "500 11px sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.fillText("HBM + DDR5", cx, cy + 32);
+    } else if (next === "armor") {
+      ctx.fillStyle = "#140b08";
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = "#ff5a1f";
+      ctx.font = "600 11px sans-serif";
+      ctx.fillText("STRUCTURE", cx, 48);
+      ctx.fillStyle = "#fff";
+      ctx.font = "700 44px sans-serif";
+      ctx.fillText("3t", cx, cy);
+      ctx.font = "500 11px sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.fillText("DIRECT FORCE", cx, cy + 32);
     } else {
       ctx.fillStyle = "#0c120e";
       ctx.fillRect(0, 0, w, h);
@@ -109,7 +115,7 @@ export function createWatchFace() {
       ctx.fill();
       ctx.fillStyle = "#c6ff4a";
       ctx.font = "600 10px sans-serif";
-      ctx.fillText("ULTRA 3", cx, h - 36);
+      ctx.fillText("iSPY", cx, h - 36);
     }
     return true;
   };

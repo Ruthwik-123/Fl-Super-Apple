@@ -61,7 +61,7 @@ export const keyframes = [
     explode: 0,
     finish: 0,
     band: 0,
-    face: "run",
+    face: "wayfinder",
     env: "studio",
   },
   {
@@ -74,7 +74,7 @@ export const keyframes = [
     explode: 0,
     finish: 0,
     band: 0,
-    face: "dive",
+    face: "optics",
     env: "underwater",
   },
   {
@@ -87,7 +87,7 @@ export const keyframes = [
     explode: 0,
     finish: 1,
     band: 2,
-    face: "satellite",
+    face: "armor",
     env: "night",
   },
   {
@@ -100,7 +100,7 @@ export const keyframes = [
     explode: 1,
     finish: 0,
     band: 0,
-    face: "battery",
+    face: "cell",
     env: "studio",
   },
   {
@@ -113,7 +113,7 @@ export const keyframes = [
     explode: 0,
     finish: 0,
     band: 1,
-    face: "run",
+    face: "core",
     env: "studio",
   },
   {

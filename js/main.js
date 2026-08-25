@@ -5,15 +5,15 @@ const loader = document.getElementById("loader");
 const chaptersEl = document.getElementById("chapters");
 
 const names = [
-  "Hero",
+  "Face",
   "Titanium",
   "Display",
-  "Action",
-  "Dive",
-  "Satellite",
-  "Inside",
-  "Bands",
-  "Finishes",
+  "Controls",
+  "Optics",
+  "Armor",
+  "Cell",
+  "Core",
+  "Link",
   "Close",
 ];
 
@@ -29,7 +29,7 @@ names.forEach((name, i) => {
 });
 
 const exp = new Experience(canvas);
-window.__ultra = exp;
+window.__ispy = exp;
 loader.classList.add("is-gone");
 
 document.querySelectorAll(".nav a[href^='#']").forEach((a) => {

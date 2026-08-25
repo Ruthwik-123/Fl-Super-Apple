@@ -127,9 +127,10 @@ a {
   letter-spacing: -0.01em;
 }
 
-.apple-logo {
-  width: 14px;
-  height: 17px;
+.brand-mark {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  font-size: 11px;
 }
 
 .nav-links {
