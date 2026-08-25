@@ -1,0 +1,371 @@
+:root {
+  --bg: #000;
+  --text: #f5f5f7;
+  --muted: #a1a1a6;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #ff5a1f;
+  --green: #c6ff4a;
+  --nav-h: 52px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: auto;
+  background: var(--bg);
+}
+
+html,
+body {
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #000;
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+}
+
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 30%, rgba(0, 0, 0, 0.45) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, transparent 18%, transparent 82%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+}
+
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: #000;
+  transition: opacity 0.7s var(--ease), visibility 0.7s;
+}
+
+#loader.is-gone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.loader-ring {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #fff;
+  animation: spin 0.9s linear infinite;
+}
+
+.loader-word {
+  font-size: 13px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+  backdrop-filter: blur(0px);
+  font-size: 12px;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.apple-logo {
+  width: 14px;
+  height: 17px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 22px;
+  color: var(--muted);
+}
+
+.nav-links a:hover {
+  color: #fff;
+}
+
+.nav-buy {
+  background: #0071e3;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 980px;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.nav-buy:hover {
+  background: #147ce5;
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 41;
+  background: transparent;
+}
+
+#progress-bar {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+}
+
+.chapters {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chapters button {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.25s var(--ease), background 0.25s;
+}
+
+.chapters button.is-active {
+  background: #fff;
+  transform: scale(1.35);
+}
+
+#story {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.chapter {
+  min-height: 160vh;
+  display: flex;
+  align-items: center;
+  padding: 12vh 8vw;
+}
+
+.chapter-end {
+  min-height: 120vh;
+}
+
+.copy {
+  max-width: 420px;
+  pointer-events: auto;
+}
+
+.copy-center {
+  margin: 0 auto;
+  text-align: center;
+  max-width: 720px;
+}
+
+.copy-left {
+  margin-right: auto;
+}
+
+.copy-right {
+  margin-left: auto;
+}
+
+.eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+h1,
+h2 {
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  margin-bottom: 18px;
+}
+
+h1 {
+  font-size: clamp(52px, 9vw, 112px);
+}
+
+h2 {
+  font-size: clamp(36px, 5.4vw, 64px);
+}
+
+.lede,
+.copy p:not(.eyebrow):not(.hint) {
+  font-size: 19px;
+  line-height: 1.45;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.hint {
+  margin-top: 48px;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.cta {
+  display: inline-flex;
+  margin-top: 28px;
+  pointer-events: auto;
+  background: #fff;
+  color: #000;
+  padding: 14px 22px;
+  border-radius: 980px;
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.cta:hover {
+  background: #e8e8ed;
+}
+
+.label3d {
+  color: #fff;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+.label3d.is-on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 860px) {
+  .nav-links {
+    display: none;
+  }
+
+  .copy-left,
+  .copy-right {
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .copy {
+    max-width: 520px;
+  }
+
+  .chapter {
+    align-items: flex-end;
+    padding-bottom: 12vh;
+    min-height: 150vh;
+  }
+
+  .chapters {
+    right: 12px;
+  }
+
+  h1 {
+    font-size: 48px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint,
+  .loader-ring {
+    animation: none;
+  }
+}

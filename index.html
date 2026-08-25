@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Apple Watch Ultra 3</title>
+    <meta
+      name="description"
+      content="A scroll-driven 3D presentation of Apple Watch Ultra 3 — the highest edition."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⌚</text></svg>" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="loader">
+      <div class="loader-mark">
+        <span class="loader-ring"></span>
+        <span class="loader-word">Ultra 3</span>
+      </div>
+    </div>
+
+    <canvas id="stage"></canvas>
+    <div class="vignette"></div>
+    <div class="grain"></div>
+
+    <header class="nav">
+      <a class="nav-brand" href="#hero">
+        <svg class="apple-logo" viewBox="0 0 14 18" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M11.5 9.6c.02-2.1 1.72-3.12 1.8-3.17-1-1.45-2.52-1.65-3.05-1.67-1.3-.13-2.54.76-3.2.76-.66 0-1.68-.74-2.77-.72-1.42.02-2.74.83-3.47 2.1-1.48 2.57-.38 6.37 1.06 8.46.71 1.02 1.55 2.16 2.66 2.12 1.07-.04 1.47-.69 2.76-.69 1.28 0 1.64.69 2.77.67 1.15-.02 1.87-1.03 2.57-2.06.81-1.18 1.14-2.33 1.16-2.39-.03-.01-2.22-.85-2.24-3.41zM9.4 3.02c.58-.71 0.98-1.69.87-2.67-.84.03-1.86.56-2.46 1.27-.54.63-1.01 1.64-.88 2.6.93.07 1.88-.48 2.47-1.2z"
+          />
+        </svg>
+        <span>Watch Ultra 3</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#titanium">Design</a>
+        <a href="#display">Display</a>
+        <a href="#dive">Adventure</a>
+        <a href="#explode">Inside</a>
+      </nav>
+      <a class="nav-buy" href="https://www.apple.com/apple-watch-ultra-3/" target="_blank" rel="noopener">Buy</a>
+    </header>
+
+    <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+
+    <aside class="chapters" id="chapters" aria-label="Chapters"></aside>
+
+    <main id="story">
+      <section class="chapter" id="hero" data-chapter="0">
+        <div class="copy copy-center">
+          <p class="eyebrow">Apple Watch Ultra 3</p>
+          <h1>Personal beast.</h1>
+          <p class="lede">
+            Scroll to turn the highest edition of Apple Watch in three dimensions —
+            titanium, sapphire, and a body built for the edge of the map.
+          </p>
+          <p class="hint">Scroll to explore</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="titanium" data-chapter="1">
+        <div class="copy copy-left">
+          <p class="eyebrow">Grade 5 titanium</p>
+          <h2>Aerospace on the wrist.</h2>
+          <p>
+            A 49mm corrosion-resistant titanium case, 12mm thin, milled for trails,
+            summits, and open water. Natural or black. Always unapologetically Ultra.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="display" data-chapter="2">
+        <div class="copy copy-left">
+          <p class="eyebrow">LTPO3 wide-angle OLED</p>
+          <h2>Our largest, brightest canvas.</h2>
+          <p>
+            422×514 pixels. Up to 3,000 nits. 1 nit at night. Wide-angle OLEDs throw
+            more light off-axis, so the face stays readable in alpine glare and
+            under a swell.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="action" data-chapter="3">
+        <div class="copy copy-right">
+          <p class="eyebrow">Action button</p>
+          <h2>International orange. Instant control.</h2>
+          <p>
+            One press starts a workout, drops a waypoint, marks a segment, or
+            fires the flashlight. Customizable. Unmissable in the dark and under water.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="dive" data-chapter="4">
+        <div class="copy copy-left">
+          <p class="eyebrow">WR100 · IP6X</p>
+          <h2>Certified for the deep.</h2>
+          <p>
+            Recreational scuba to 40 meters. High-speed water sports. A depth gauge,
+            water-temperature sensor, and a siren if you need to be found.
+            Dust does not get a vote.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="satellite" data-chapter="5">
+        <div class="copy copy-left">
+          <p class="eyebrow">Satellite · 5G RedCap</p>
+          <h2>Off the grid, still on the line.</h2>
+          <p>
+            Two-way satellite for Emergency SOS, Messages, and Find My.
+            Dual-frequency GPS. Cellular when the trail still has a tower —
+            and when it doesn’t.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="explode" data-chapter="6">
+        <div class="copy copy-left">
+          <p class="eyebrow">S10 SiP · 64GB</p>
+          <h2>The engine, opened.</h2>
+          <p>
+            Dual-core S10, four-core Neural Engine, and a battery rated up to
+            42 hours — 72 in Low Power Mode. Fifteen minutes on the charger
+            returns about 12 hours of normal use.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="bands" data-chapter="7">
+        <div class="copy copy-left">
+          <p class="eyebrow">Ocean · Alpine · Trail</p>
+          <h2>A band for every expedition.</h2>
+          <p>
+            Tubular Ocean Band for the water. High-strength Alpine Loop for
+            vertical days. Thin Trail Loop when every gram counts.
+            Watch the strap rewrite itself as you scroll.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter" id="finishes" data-chapter="8">
+        <div class="copy copy-left">
+          <p class="eyebrow">Two finishes</p>
+          <h2>Natural. Or night.</h2>
+          <p>
+            Aerospace-grade titanium in natural or black. Same 61-gram presence.
+            Same sapphire crystal. Choose the one that matches the mission.
+          </p>
+        </div>
+      </section>
+
+      <section class="chapter chapter-end" id="close" data-chapter="9">
+        <div class="copy copy-center">
+          <p class="eyebrow">From $799</p>
+          <h2>Ready when you are.</h2>
+          <p class="lede">
+            GPS + Cellular. 49mm. The most capable Apple Watch ever made.
+          </p>
+          <a class="cta" href="https://www.apple.com/apple-watch-ultra-3/" target="_blank" rel="noopener">
+            Shop Apple Watch Ultra 3
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
