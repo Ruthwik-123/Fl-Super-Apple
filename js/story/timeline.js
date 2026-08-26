@@ -27,7 +27,8 @@ export class StoryTimeline {
       optics: 0,
       finish: 0,
       band: 0,
-      face: "wayfinder",
+      side: 0,
+      face: "expedition",
       faceProgress: 0,
       key: 3,
       fill: 18,
@@ -36,6 +37,13 @@ export class StoryTimeline {
       signal: 0,
       chapter: 0,
     };
+    // Allocation-free temporaries for the curved camera path.
+    this._a = new THREE.Vector3();
+    this._b = new THREE.Vector3();
+    this._mid = new THREE.Vector3();
+    this._tgtMid = new THREE.Vector3();
+    this._dir = new THREE.Vector3();
+    this._cp = new THREE.Vector3();
   }
 
   sample(progress, stops) {
@@ -53,7 +61,24 @@ export class StoryTimeline {
     const b = this.shots[index + 1];
     const state = this.state;
 
-    state.camera.lerpVectors(a.cameraVector, b.cameraVector, amount);
+    // Curved depth transition: the camera travels a quadratic arc that dives
+    // toward the product mid-transition instead of a straight lerp, so every
+    // move carries a soft push-in / pull-back through depth.
+    this._a.copy(a.cameraVector);
+    this._b.copy(b.cameraVector);
+    this._mid.lerpVectors(this._a, this._b, 0.5);
+    this._tgtMid.lerpVectors(a.targetVector, b.targetVector, 0.5);
+    this._dir.subVectors(this._tgtMid, this._mid);
+    const reach = this._dir.length();
+    this._dir.normalize();
+    const arcDepth = Math.min(12, reach * 0.45) + 2.5;
+    this._cp.copy(this._mid).addScaledVector(this._dir, arcDepth);
+    const inv = 1 - amount;
+    state.camera
+      .copy(this._a).multiplyScalar(inv * inv)
+      .addScaledVector(this._cp, 2 * inv * amount)
+      .addScaledVector(this._b, amount * amount);
+
     state.target.lerpVectors(a.targetVector, b.targetVector, amount);
     state.product.lerpVectors(a.productVector, b.productVector, amount);
     state.quaternion.slerpQuaternions(a.quaternion, b.quaternion, amount);
@@ -62,7 +87,11 @@ export class StoryTimeline {
     state.assembly = THREE.MathUtils.lerp(a.assembly, b.assembly, amount);
     state.optics = THREE.MathUtils.lerp(a.optics, b.optics, amount);
     state.finish = THREE.MathUtils.lerp(a.finish, b.finish, amount);
-    state.band = THREE.MathUtils.lerp(a.band, b.band, amount);
+    // The band is a categorical choice (0/1/2), so it must switch at the
+    // transition midpoint rather than lerp — a continuous blend would sweep
+    // through the intermediate variant and look like a colour glitch.
+    state.band = raw < 0.5 ? a.band : b.band;
+    state.side = THREE.MathUtils.lerp(a.side ?? 0, b.side ?? 0, amount);
     state.key = THREE.MathUtils.lerp(a.light.key, b.light.key, amount);
     state.fill = THREE.MathUtils.lerp(a.light.fill, b.light.fill, amount);
     state.rim = THREE.MathUtils.lerp(a.light.rim, b.light.rim, amount);
@@ -87,6 +116,7 @@ export class StoryTimeline {
     state.optics = shot.optics;
     state.finish = shot.finish;
     state.band = shot.band;
+    state.side = shot.side ?? 0;
     state.key = shot.light.key;
     state.fill = shot.light.fill;
     state.rim = shot.light.rim;

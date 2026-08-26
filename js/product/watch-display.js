@@ -21,15 +21,15 @@ export class WatchDisplay {
     this.mode = "";
     this.lastSecond = -1;
     this.lastProgress = -1;
-    this.draw("wayfinder", 0, true);
+    this.draw("expedition", 0, true);
   }
 
   draw(mode, progress = 0, force = false) {
     const now = new Date();
     const second = now.getSeconds();
-    const progressDriven = !["wayfinder", "sleep"].includes(mode);
+    const progressDriven = !["expedition", "sleep"].includes(mode);
     const changed = mode !== this.mode || (progressDriven && Math.abs(progress - this.lastProgress) > 0.025);
-    if (!force && !changed && (mode !== "wayfinder" || second === this.lastSecond)) return false;
+    if (!force && !changed && (mode !== "expedition" || second === this.lastSecond)) return false;
 
     this.mode = mode;
     this.lastSecond = second;
@@ -45,7 +45,7 @@ export class WatchDisplay {
     else if (mode === "core") this.drawCore(progress);
     else if (mode === "link") this.drawLink(progress);
     else if (mode === "sleep") this.drawSleep();
-    else this.drawWayfinder(now);
+    else this.drawExpedition(now);
 
     this.texture.needsUpdate = true;
     return true;
@@ -61,24 +61,27 @@ export class WatchDisplay {
     ctx.fillText(label, CX, 82);
   }
 
-  drawWayfinder(now) {
+  drawExpedition(now) {
     const ctx = this.context;
-    const glow = ctx.createRadialGradient(CX, CY, 20, CX, CY, 390);
-    glow.addColorStop(0, "#10170e");
-    glow.addColorStop(0.55, "#080c07");
+    const seconds = now.getSeconds();
+
+    const glow = ctx.createRadialGradient(CX, CY, 24, CX, CY, 400);
+    glow.addColorStop(0, "#0d130c");
+    glow.addColorStop(0.55, "#070b07");
     glow.addColorStop(1, "#010201");
     ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 
+    // Slim quarter ring with a sweeping seconds marker.
     ctx.save();
-    ctx.translate(CX, CY + 15);
+    ctx.translate(CX, CY + 10);
     for (let i = 0; i < 60; i++) {
       const angle = (i / 60) * TAU - Math.PI / 2;
-      const major = i % 5 === 0;
-      const inner = major ? 300 : 322;
-      const outer = 345;
-      ctx.strokeStyle = major ? "#d8ff79" : "rgba(198,255,74,.28)";
-      ctx.lineWidth = major ? 6 : 2;
+      const quarter = i % 15 === 0;
+      const inner = quarter ? 304 : 322;
+      const outer = 346;
+      ctx.strokeStyle = quarter ? "rgba(198,255,74,.9)" : "rgba(255,255,255,.16)";
+      ctx.lineWidth = quarter ? 7 : 2;
       ctx.beginPath();
       ctx.moveTo(Math.cos(angle) * inner, Math.sin(angle) * inner);
       ctx.lineTo(Math.cos(angle) * outer, Math.sin(angle) * outer);
@@ -86,56 +89,35 @@ export class WatchDisplay {
     }
     ctx.restore();
 
+    const sAngle = (seconds / 60) * TAU - Math.PI / 2;
+    ctx.fillStyle = "#ff5a1f";
+    ctx.beginPath();
+    ctx.arc(CX + Math.cos(sAngle) * 325, CY + 10 + Math.sin(sAngle) * 325, 7, 0, TAU);
+    ctx.fill();
+
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillStyle = "#c6ff4a";
-    ctx.font = "700 34px Inter, sans-serif";
-    ctx.fillText("N", CX, 130);
-    ctx.fillStyle = "rgba(255,255,255,.54)";
-    ctx.font = "600 21px Inter, sans-serif";
-    ctx.fillText("270°", 116, CY + 18);
-    ctx.fillText("90°", W - 116, CY + 18);
+    ctx.fillStyle = "rgba(255,255,255,.5)";
+    ctx.font = "600 24px Inter, sans-serif";
+    ctx.letterSpacing = "3px";
+    const day = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][now.getDay()];
+    ctx.fillText(`${day} ${now.getDate()}`, CX, CY - 46);
 
     const hh = String(now.getHours()).padStart(2, "0");
     const mm = String(now.getMinutes()).padStart(2, "0");
     ctx.fillStyle = "#f7f7f2";
-    ctx.font = "650 64px Inter, sans-serif";
-    ctx.fillText(`${hh}:${mm}`, CX, 58);
+    ctx.font = "650 96px Inter, sans-serif";
+    ctx.fillText(`${hh}:${mm}`, CX, CY + 16);
 
-    const hour = (now.getHours() % 12 + now.getMinutes() / 60) / 12 * TAU - Math.PI / 2;
-    const minute = (now.getMinutes() + now.getSeconds() / 60) / 60 * TAU - Math.PI / 2;
-    const second = now.getSeconds() / 60 * TAU - Math.PI / 2;
-    this.hand(hour, 148, 15, "#f5f5f0");
-    this.hand(minute, 230, 10, "#f5f5f0");
-    this.hand(second, 266, 4, "#ff5a1f");
-
-    ctx.fillStyle = "#ff5a1f";
-    ctx.beginPath();
-    ctx.arc(CX, CY + 15, 15, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = "#111";
-    ctx.beginPath();
-    ctx.arc(CX, CY + 15, 5, 0, TAU);
-    ctx.fill();
-
-    ctx.fillStyle = "rgba(255,255,255,.68)";
-    ctx.font = "500 20px Inter, sans-serif";
-    ctx.fillText("52 m", CX, H - 94);
     ctx.fillStyle = "#c6ff4a";
-    ctx.font = "700 21px Inter, sans-serif";
-    ctx.letterSpacing = "5px";
-    ctx.fillText("ISPY", CX, H - 50);
-  }
+    ctx.font = "700 22px Inter, sans-serif";
+    ctx.letterSpacing = "6px";
+    ctx.fillText("48MM · TITANIUM", CX, CY + 96);
 
-  hand(angle, length, width, color) {
-    const ctx = this.context;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(CX - Math.cos(angle) * 30, CY + 15 - Math.sin(angle) * 30);
-    ctx.lineTo(CX + Math.cos(angle) * length, CY + 15 + Math.sin(angle) * length);
-    ctx.stroke();
+    ctx.fillStyle = "rgba(255,255,255,.6)";
+    ctx.font = "700 24px Inter, sans-serif";
+    ctx.letterSpacing = "7px";
+    ctx.fillText("ISPY", CX, H - 64);
   }
 
   drawOptics(progress) {

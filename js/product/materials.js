@@ -16,18 +16,18 @@ export class ProductMaterials {
       name: "Brushed grade 5 titanium",
       color: this.naturalTitanium,
       metalness: 1,
-      roughness: 0.31,
+      roughness: 0.28,
       roughnessMap: this.textures.brushed,
-      anisotropy: 0.52,
+      anisotropy: 0.6,
       anisotropyRotation: Math.PI / 2,
-      clearcoat: 0.08,
-      clearcoatRoughness: 0.38,
-      envMapIntensity: 1.35,
+      clearcoat: 0.12,
+      clearcoatRoughness: 0.34,
+      envMapIntensity: 1.55,
     });
     this.titaniumDark = this.titanium.clone();
     this.titaniumDark.name = "Dark titanium details";
     this.titaniumDark.color.set(0x35383b);
-    this.titaniumDark.roughness = 0.38;
+    this.titaniumDark.roughness = 0.36;
 
     this.glass = new THREE.MeshPhysicalMaterial({
       name: "Sapphire crystal",
@@ -60,24 +60,25 @@ export class ProductMaterials {
     this.sensorGlass.opacity = lowPower ? 0.72 : 1;
     this.sensorGlass.roughness = 0.09;
 
+    this.accent = new THREE.MeshStandardMaterial({ name: "Signal accent", color: 0xff5a1f, roughness: 0.42, metalness: 0.15 });
     this.black = new THREE.MeshStandardMaterial({ color: 0x08090a, roughness: 0.52, metalness: 0.12 });
-    this.rubberGreen = new THREE.MeshStandardMaterial({
-      name: "Fluoroelastomer lime",
-      color: 0xb4df41,
-      roughness: 0.66,
+    this.rubberSlate = new THREE.MeshStandardMaterial({
+      name: "Fluoroelastomer slate",
+      color: 0x5f6b73,
+      roughness: 0.62,
       roughnessMap: this.textures.rubber,
       metalness: 0,
     });
-    this.rubberOrange = new THREE.MeshStandardMaterial({
-      name: "International orange polymer",
-      color: 0xe74e1c,
-      roughness: 0.58,
+    this.rubberClay = new THREE.MeshStandardMaterial({
+      name: "Fluoroelastomer clay",
+      color: 0xb3573a,
+      roughness: 0.56,
       roughnessMap: this.textures.rubber,
       metalness: 0,
     });
     this.woven = new THREE.MeshStandardMaterial({
-      name: "Woven trail textile",
-      color: 0x343633,
+      name: "Woven traverse textile",
+      color: 0x3a3c3b,
       map: this.textures.woven,
       roughness: 0.87,
       metalness: 0,
