@@ -188,7 +188,7 @@ export class ProductWatch {
       this.chassis.add(guard);
     });
 
-    const crownBody = mesh(zCylinder(3.28, 3.25, 48), this.materials.titanium, "Digital crown");
+    const crownBody = mesh(zCylinder(3.28, 3.25, 64), this.materials.titanium, "Crown");
     crownBody.geometry.rotateY(Math.PI / 2);
     crownBody.position.set(25.1, 7.65, 1.1);
     this.chassis.add(crownBody);
@@ -207,11 +207,11 @@ export class ProductWatch {
     ridges.instanceMatrix.needsUpdate = true;
     this.chassis.add(ridges);
 
-    const crownCap = mesh(zCylinder(2.62, 0.35, 48), this.materials.titaniumDark, "Crown cap");
+    const crownCap = mesh(zCylinder(2.62, 0.35, 64), this.materials.titaniumDark, "Crown cap");
     crownCap.rotation.y = Math.PI / 2;
     crownCap.position.set(26.82, 7.65, 1.1);
     this.chassis.add(crownCap);
-    const crownAccent = mesh(new THREE.TorusGeometry(2.15, 0.13, 8, 40), this.materials.rubberOrange, "Crown accent ring");
+    const crownAccent = mesh(new THREE.TorusGeometry(2.15, 0.13, 10, 64), this.materials.accent, "Crown accent ring");
     crownAccent.rotation.y = Math.PI / 2;
     crownAccent.position.set(27.02, 7.65, 1.1);
     this.chassis.add(crownAccent);
@@ -223,9 +223,12 @@ export class ProductWatch {
     const actionWell = mesh(roundedBox(1.25, 11.1, 5.45, 0.58, 3), this.materials.titaniumDark, "Action button surround");
     actionWell.position.set(-22.85, 4.3, 0.25);
     this.chassis.add(actionWell);
-    const actionButton = mesh(roundedBox(1.55, 8.2, 3.65, 0.58, 3), this.materials.rubberOrange, "International orange action button");
+    const actionButton = mesh(roundedBox(1.55, 8.2, 3.65, 0.58, 3), this.materials.black, "Programmable action key");
     actionButton.position.set(-23.25, 4.3, 0.3);
     this.chassis.add(actionButton);
+    const actionAccent = mesh(roundedBox(0.42, 6.4, 0.22, 0.2, 2), this.materials.accent, "Action key accent");
+    actionAccent.position.set(-24.06, 4.3, 0.3);
+    this.chassis.add(actionAccent);
 
     const portGeometry = zCylinder(0.63, 0.45, 18);
     portGeometry.rotateY(Math.PI / 2);
@@ -251,10 +254,10 @@ export class ProductWatch {
     sensorBody.position.z = -7.02;
     this.rearAssembly.add(sensorBody);
 
-    const outerRing = mesh(new THREE.TorusGeometry(11.65, 1.15, 16, 64), this.materials.sensorGlass, "Rear sapphire sensor ring");
+    const outerRing = mesh(new THREE.TorusGeometry(11.65, 1.15, 20, 80), this.materials.sensorGlass, "Rear sapphire sensor ring");
     outerRing.position.z = -8.18;
     this.rearAssembly.add(outerRing);
-    const innerRing = mesh(new THREE.TorusGeometry(7.15, 0.46, 12, 64), this.materials.gold, "Sensor contact ring");
+    const innerRing = mesh(new THREE.TorusGeometry(7.15, 0.46, 14, 80), this.materials.gold, "Sensor contact ring");
     innerRing.position.z = -8.3;
     this.rearAssembly.add(innerRing);
 
@@ -406,9 +409,9 @@ export class ProductWatch {
     const upperGeometry = new BandGeometry(1, { pathSegments: 28, radialSegments: 12 });
     const lowerGeometry = new BandGeometry(-1, { length: 42, pathSegments: 30, radialSegments: 12 });
     const definitions = [
-      ["Ocean band", this.materials.rubberGreen],
-      ["Alpine band", this.materials.rubberOrange],
-      ["Trail band", this.materials.woven],
+      ["Apex band", this.materials.rubberSlate],
+      ["Ridge band", this.materials.rubberClay],
+      ["Traverse band", this.materials.woven],
     ];
 
     definitions.forEach(([name, material], variantIndex) => {
@@ -425,17 +428,17 @@ export class ProductWatch {
       });
 
       if (variantIndex === 0) {
-        const pin = mesh(zCylinder(2.1, 1.1, 28), this.materials.titanium, "Ocean band pin");
+        const pin = mesh(zCylinder(2.1, 1.1, 28), this.materials.titanium, "Apex band pin");
         pin.position.set(0, -54, -13.5);
         variant.add(pin);
       } else if (variantIndex === 1) {
-        const loop = mesh(new THREE.TorusGeometry(8.4, 0.85, 8, 32), this.materials.titanium, "Alpine band loop");
+        const loop = mesh(new THREE.TorusGeometry(8.4, 0.85, 10, 40), this.materials.titanium, "Ridge band loop");
         loop.scale.y = 0.42;
         loop.rotation.x = 0.58;
         loop.position.set(0, 49, -10.4);
         variant.add(loop);
       } else {
-        const clasp = mesh(roundedBox(11, 5.5, 1.4, 1.1, 3), this.materials.titaniumDark, "Trail band clasp");
+        const clasp = mesh(roundedBox(11, 5.5, 1.4, 1.1, 3), this.materials.titaniumDark, "Traverse band clasp");
         clasp.position.set(0, 48, -10.2);
         clasp.rotation.x = 0.52;
         variant.add(clasp);
@@ -493,7 +496,6 @@ export class ProductWatch {
     this.frontAssembly.position.z = eased * 13.5;
     this.rearAssembly.position.z = -eased * 14;
     this.chassis.rotation.z = eased * 0.035;
-    this.bandAssembly.visible = next < 0.64;
     this.internalAssembly.visible = next > 0.025 || this.optics > 0.025;
 
     for (const part of this.animatedParts) {

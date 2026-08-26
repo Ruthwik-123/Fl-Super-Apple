@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { createBackgroundTexture } from "../product/textures.js";
 
 export class StudioRig {
@@ -9,18 +8,9 @@ export class StudioRig {
     this.warm = new THREE.Color(0xffead2);
     this.cool = new THREE.Color(0xb9d9ff);
 
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    pmrem.compileEquirectangularShader();
-    const room = new RoomEnvironment();
-    this.environmentTarget = pmrem.fromScene(room, 0.045);
+    this.environmentTarget = this.buildEnvironment(renderer);
     scene.environment = this.environmentTarget.texture;
-    scene.environmentIntensity = 0.72;
-    pmrem.dispose();
-    room.traverse((object) => {
-      object.geometry?.dispose();
-      if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
-      else object.material?.dispose();
-    });
+    scene.environmentIntensity = 0.95;
 
     this.ambient = new THREE.HemisphereLight(0xdbe7f2, 0x100d0a, 0.62);
     this.key = new THREE.DirectionalLight(0xffead2, 3.2);
@@ -68,6 +58,46 @@ export class StudioRig {
     this.background.position.set(0, 5, -44);
     this.background.renderOrder = -10;
     scene.add(this.background);
+  }
+
+  /**
+   * Builds a high-contrast studio environment (dark dome + HDR softboxes and
+   * rim strips) for crisp, realistic reflections on the titanium and sapphire.
+   */
+  buildEnvironment(renderer) {
+    const env = new THREE.Scene();
+    const dome = new THREE.Mesh(
+      new THREE.SphereGeometry(60, 32, 16),
+      new THREE.MeshBasicMaterial({ color: 0x050607, side: THREE.BackSide })
+    );
+    env.add(dome);
+
+    const panel = (width, height, r, g, b, position) => {
+      const material = new THREE.MeshBasicMaterial({
+        color: new THREE.Color().setRGB(r, g, b, THREE.LinearSRGBColorSpace),
+        side: THREE.DoubleSide,
+      });
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
+      mesh.position.set(...position);
+      mesh.lookAt(0, 0, 0);
+      env.add(mesh);
+    };
+
+    panel(12, 7, 9, 7.4, 5.8, [-9, 7, 9]); // warm key softbox
+    panel(10, 10, 3.2, 4.6, 6.6, [9, 3, 5]); // cool fill
+    panel(15, 2.2, 10, 9, 8, [0, 12, -12]); // bright rim strip
+    panel(16, 9, 4.6, 4.8, 5.3, [0, 24, 0]); // top softbox
+    panel(14, 3, 1.3, 1.1, 0.9, [0, -9, 0]); // floor bounce
+
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    pmrem.compileEquirectangularShader();
+    const target = pmrem.fromScene(env, 0.045);
+    pmrem.dispose();
+    env.traverse((object) => {
+      object.geometry?.dispose();
+      object.material?.dispose();
+    });
+    return target;
   }
 
   update(state) {

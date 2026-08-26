@@ -133,13 +133,19 @@ button { font: inherit; }
 }
 .chapter-end { min-height: 125vh; }
 .copy {
-  width: min(440px, 86vw);
+  width: min(400px, 86vw);
   pointer-events: auto;
   text-shadow: 0 2px 24px #000, 0 1px 5px #000;
 }
 .copy-center { width: min(720px, 88vw); max-width: 720px; margin: 0 auto; text-align: center; }
 .copy-left { margin-right: auto; }
-.copy-right { margin-left: auto; }
+.copy-right { margin-left: auto; text-align: right; }
+
+@media (min-width: 861px) {
+  /* Keep the copy compact so the instrument always has a clear lane beside it. */
+  .copy { width: min(400px, 34vw); }
+  .chapter { padding: 12vh 6.5vw; }
+}
 .eyebrow {
   margin-bottom: 16px;
   color: var(--green);

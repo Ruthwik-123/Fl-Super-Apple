@@ -23,6 +23,7 @@ export class Experience {
     this.lastHeight = 0;
     this.firstFrame = true;
     this.isDestroyed = false;
+    this.narrow = false;
 
     this.renderer = new THREE.WebGLRenderer({
       canvas,
@@ -42,7 +43,10 @@ export class Experience {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color(0x000000);
     this.camera = new THREE.PerspectiveCamera(31, 1, 0.35, 220);
-    this.camera.position.set(7, 3, 64);
+    this.camera.position.set(0, 3, 64);
+    this._frameCamera = new THREE.Vector3();
+    this._frameTarget = new THREE.Vector3();
+    this._frameProduct = new THREE.Vector3();
 
     this.studio = new StudioRig(this.renderer, this.scene, this.quality.shadows);
     this.watch = new ProductWatch(this.renderer, this.quality.mobile);
@@ -82,6 +86,11 @@ export class Experience {
     this.lastWidth = width;
     this.lastHeight = height;
     this.quality.mobile = window.matchMedia("(max-width: 860px), (pointer: coarse)").matches;
+    // Layout must follow the SAME breakpoint as the CSS (max-width: 860px).
+    // `pointer: coarse` only affects performance, never the side placement,
+    // otherwise a touch/coarse-pointer desktop would keep the watch centred
+    // while the CSS still alternates the text left/right.
+    this.narrow = window.matchMedia("(max-width: 860px)").matches;
 
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
@@ -99,6 +108,22 @@ export class Experience {
     });
   }
 
+  /**
+   * World-space horizontal offset that places the watch at ~75% of the frame
+   * width on the requested side, clamped so the case never leaves the frame on
+   * narrow windows. Recomputed cheaply each frame against the live fov/aspect.
+   */
+  resolveSideOffset(state) {
+    const aspect = this.lastWidth / Math.max(1, this.lastHeight);
+    const distance = Math.max(1, state.camera.z - state.product.z);
+    const halfHeight = Math.tan(THREE.MathUtils.degToRad(this.camera.fov) * 0.5);
+    const halfWidth = distance * halfHeight * aspect;
+    const watchHalf = 10.5; // scaled case + lug + margin
+    const maxOffset = Math.max(0, halfWidth - watchHalf);
+    const desired = halfWidth * 0.5; // watch centre at ~75% of frame width
+    return Math.min(desired, maxOffset);
+  }
+
   requestRender() {
     if (!this.frame && !this.isDestroyed && !document.hidden) {
       this.frame = requestAnimationFrame(this.render);
@@ -106,17 +131,28 @@ export class Experience {
   }
 
   applyState(state) {
-    const mobile = this.quality.mobile;
+    const mobile = this.narrow;
     let nextFov = state.fov;
     if (mobile) {
-      this.camera.position.set(state.camera.x * 0.18, state.camera.y + 4.8, state.camera.z + 7);
+      // Portrait: keep the instrument centred and lifted toward the upper band
+      // so the bottom-anchored copy sits over its scrim, never over the case.
+      this.camera.position.set(0, state.camera.y + 4.8, state.camera.z + 7);
       nextFov = Math.max(36, state.fov + 6);
-      this.watch.group.position.set(state.product.x * 0.12, state.product.y + 4.7, state.product.z);
-      this.camera.lookAt(state.target.x * 0.1, state.target.y + 4.1, state.target.z);
+      this.watch.group.position.set(0, state.product.y + 4.7, state.product.z);
+      this.camera.lookAt(0, state.target.y + 4.1, state.target.z);
     } else {
-      this.camera.position.copy(state.camera);
-      this.watch.group.position.copy(state.product);
-      this.camera.lookAt(state.target);
+      // Desktop: resolve a responsive horizontal offset from the shot `side`
+      // so the watch sits cleanly opposite the text at any aspect ratio.
+      const offset = this.resolveSideOffset(state) * state.side;
+      this._frameCamera.copy(state.camera);
+      this._frameTarget.copy(state.target);
+      this._frameProduct.copy(state.product);
+      this._frameCamera.x += offset * 0.16;
+      this._frameTarget.x += offset * 0.22;
+      this._frameProduct.x += offset;
+      this.camera.position.copy(this._frameCamera);
+      this.watch.group.position.copy(this._frameProduct);
+      this.camera.lookAt(this._frameTarget);
     }
     if (Math.abs(this.camera.fov - nextFov) > 0.001) {
       this.camera.fov = nextFov;
